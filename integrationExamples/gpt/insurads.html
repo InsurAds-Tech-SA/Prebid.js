@@ -1,0 +1,193 @@
+<!--
+  This page calls a single bidder for a single ad slot. It can be considered a "hello world" example for using
+  Prebid with the Google Publisher Tag.
+  It also makes a good test page for new adapter PR submissions. Simply set your server's Bid Params object in the
+  bids array inside the adUnits, and it will use your adapter to load an ad.
+  NOTE that many ad servers won't send back an ad if the URL is localhost... so you might need to
+  set an alias in your /etc/hosts file so that you can load this page from a different domain.
+-->
+
+<html>
+
+<head>
+    <script async src="../../build/dev/prebid.js"></script>
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+    <script>
+        var FAILSAFE_TIMEOUT = 5300;
+        var PREBID_TIMEOUT = 2000;
+
+        var adUnits = [{
+            code: 'div-gpt-ad-1460505748561-0',
+            ortb2Imp: {
+                ext: {
+                    insurads: {
+                        gpid: "/1111/homepage-leftnav",
+                        data: {
+                            pbadslot: "/1111/homepage-leftnav"
+                        },
+                        position: 'teste_insurads',
+                        appId: '1s234234sf',
+                    }
+                }
+            },
+            mediaTypes: {
+                banner: {
+                    sizes: [[300, 250]],
+                }
+            },
+
+            // Replace this object to test a new Adapter!
+            bids: [{
+                bidder: 'insurads',
+                params: {
+                    placementId: 13144370,
+                    ext: {
+                        insurads: {
+                            gpid: "/1111/homepage-leftnav",
+                            data: {
+                                pbadslot: "/1111/homepage-leftnav"
+                            },
+                            position: 'teste_insurads',
+                            appId: '1s234234sf',
+                        }
+                    }
+                }
+            }]
+        }];
+
+        // // Out-of-page test slot: positioned off-screen to test visibility/engagement handling
+        // adUnits.push({
+        //     code: 'div-gpt-ad-out-of-page',
+        //     mediaTypes: {
+        //         banner: { sizes: [[1, 1]] }
+        //     },
+        //     // Replace this object to test a new Adapter!
+        //     bids: [{
+        //         bidder: 'insurAds',
+        //         params: { placementId: 13144371 }
+        //     }],
+        //     ortb2Imp: { ext: { insurads: { position: 'out_of_page' } } }
+        // });
+
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
+
+    </script>
+
+    <script>
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        googletag.cmd.push(function () {
+            googletag.pubads().disableInitialLoad();
+        });
+
+        pbjs.que.push(function () {
+
+            // pbjs.setConfig({
+            //     realTimeData: {
+            //         auctionDelay: 100,     // OPTIONAL: applies to all RTD modules.
+            //         dataProviders: [{
+            //             name: "insurAds",
+            //             waitForIt: true,   // OPTIONAL: flag this module as important
+            //             params: {
+            //                 someParam: 'someValue' // OPTIONAL: module specific params
+            //             }
+            //         }]
+            //     }
+            // });
+
+            pbjs.setConfig({
+                enableTIDs: true,
+                debug: true, // use only for testing, remove in production
+                realTimeData: {
+                    auctionDelay: 1000, // should be set lower in production use
+                    dataProviders: [
+                        {
+                            name: 'insuradsRtd',
+                            waitForIt: true,
+                            params: {
+                                resourceKey: '<YOUR_RESOURCE_KEY>',
+                            }
+                        }
+                    ]
+                },
+                ortb2: {
+                    site: {
+                        name: 'InsurAds Tech Demo',
+                        ext: {
+                            insurads: {
+                                publicId: '12345',
+                                appId: '1s234234sf',
+                            }
+                        },
+                    }
+                }
+            });
+
+            pbjs.addAdUnits(adUnits);
+
+            pbjs.requestBids({
+                bidsBackHandler: sendAdserverRequest,
+                timeout: PREBID_TIMEOUT
+            });
+        });
+
+        function sendAdserverRequest() {
+            if (pbjs.adserverRequestSent) return;
+            pbjs.adserverRequestSent = true;
+            googletag.cmd.push(function () {
+                if (pbjs.libLoaded) {
+                    pbjs.que.push(function () {
+                        pbjs.setTargetingForGPTAsync();
+                        console.log('Calling googletag.pubads().refresh');
+                        googletag.pubads().refresh();
+                    });
+                } else {
+                    googletag.pubads().refresh();
+                }
+            });
+        }
+
+        setTimeout(function () {
+            sendAdserverRequest();
+        }, FAILSAFE_TIMEOUT);
+
+    </script>
+
+    <script>
+        googletag.cmd.push(function () {
+            googletag.defineSlot('/19968336/header-bid-tag-0', [[300, 250], [300, 600]], 'div-gpt-ad-1460505748561-0').addService(googletag.pubads());
+            // Define an out-of-page slot for testing; use a 1x1 size so ad servers treat it as an out-of-page/hidden slot
+            // googletag.defineSlot('/19968336/header-bid-tag-1', [[300, 250]], 'div-gpt-ad-out-of-page').addService(googletag.pubads());
+
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+            googletag.pubads().enableLazyLoad({
+                fetchMarginPercent: 200,
+                renderMarginPercent: 100,
+                mobileScaling: 2.0
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <h2>Prebid.js Test</h2>
+    <h5>Div-1</h5>
+    <div id='div-gpt-ad-1460505748561-0'>
+        <script type='text/javascript'>
+            googletag.cmd.push(function () { googletag.display('div-gpt-ad-1460505748561-0'); });
+        </script>
+    </div>
+
+    <!-- <div id='div-gpt-ad-out-of-page' style="position: absolute; left: 0px; top: 5500px; width:2px; height:2px;">
+        <script type='text/javascript'>
+            googletag.cmd.push(function () { googletag.display('div-gpt-ad-out-of-page'); });
+        </script>
+    </div> -->
+
+
+
+</body>
+
+</html>
