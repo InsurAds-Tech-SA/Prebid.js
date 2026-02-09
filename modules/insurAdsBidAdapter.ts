@@ -70,14 +70,16 @@ const converter = ortbConverter({
   },
 });
 
+// const SERVER_IP = 'http://192.168.2.38:5101';
+const SERVER_IP = 'http://0.0.0.0:5101';
 const BIDDER_CODE = 'insurads';
 const LOG_PREFIX = 'insurads: ';
 const GVLID = 596;
 // const ENDPOINT_URL = 'https://bid.insurads.com/hb';
 // const ENDPOINT_URL = 'http://demo5011061.mockable.io/hb';
-const ENDPOINT_URL = 'http://192.168.2.38:5101/bid/request';
-const ENDPOINT_EVENT = 'http://192.168.2.38:5101/event';
-const ENDPOINT_SYNC = 'http://192.168.2.38:5101/sync';
+const ENDPOINT_URL = `${SERVER_IP}/bid/request`;
+const ENDPOINT_EVENT = `${SERVER_IP}/event`;
+const ENDPOINT_SYNC = `${SERVER_IP}/sync`;
 export const spec: BidderSpec<typeof BIDDER_CODE> = {
   code: BIDDER_CODE,
   gvlid: GVLID,
