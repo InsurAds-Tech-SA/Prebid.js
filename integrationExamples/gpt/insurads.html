@@ -124,6 +124,10 @@
                 }
             });
 
+            pbjs.onEvent('bidRequested', function (bidRequest) {
+                console.log('Prebid bidRequested!!!!' + bidRequest.bidderCode);
+            });
+
             pbjs.addAdUnits(adUnits);
 
             pbjs.requestBids({
